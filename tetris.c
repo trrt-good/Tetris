@@ -8,6 +8,16 @@
 #define BOARD_WIDTH 10
 #define BOARD_HEIGHT 20
 
+#define ANSI_COLOR_GRAY     "\x1b[30m"
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_LIGHT_PURPLE    "\x1b[36;1m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36;1m"
+#define ANSI_COLOR_WHITE   "\x1b[37;1m"
+
 typedef enum
 {
     LEFT,
@@ -147,7 +157,7 @@ Piece tetris_generate_piece()
 void tetris_print(TetrisGame *game)
 {
     int i, j;
-    printf("\n\n+-");
+    printf(ANSI_COLOR_WHITE "\n\n+-");
     for (j = 0; j < BOARD_WIDTH; j++)
     {
         printf("--");
@@ -155,15 +165,45 @@ void tetris_print(TetrisGame *game)
     printf("+\n");
     for (i = 0; i < BOARD_HEIGHT; i++)
     {
-        printf("| ");
+        printf(ANSI_COLOR_WHITE  "| ");
         for (j = 0; j < BOARD_WIDTH; j++)
         {
             if (tetris_get_piece_square(game->current_piece, j-game->current_piece.x, i-game->current_piece.y) == 1)
-                printf("$ ");
+                printf(ANSI_COLOR_GRAY "$ ");
             else
-                printf("%c ", (game->board[j][i] == 0)? ' ' : game->board[j][i]+48);
+            {
+                switch (game->board[j][i])
+                {
+                    case 0:
+                        printf("  "); 
+                        break;
+                    case 1:
+                        printf(ANSI_COLOR_RED "1 "); 
+                        break;
+                    case 2:
+                        printf(ANSI_COLOR_BLUE "2 "); 
+                        break;
+                    case 3:
+                        printf(ANSI_COLOR_YELLOW "3 "); 
+                        break;
+                    case 4:
+                        printf(ANSI_COLOR_GREEN "4 "); 
+                        break;
+                    case 5:
+                        printf(ANSI_COLOR_MAGENTA "5 "); 
+                        break;
+                    case 6:
+                        printf(ANSI_COLOR_CYAN "6 "); 
+                        break;
+                    case 7:
+                        printf(ANSI_COLOR_LIGHT_PURPLE "7 "); 
+                        break;
+                }
+                //printf(ANSI_COLOR_RED "%c ", (game->board[j][i] == 0)? ' ' : game->board[j][i]+48);
+            }
+                
         }
-        printf("|\n");
+        printf(ANSI_COLOR_WHITE "|\n");
     }
     printf("+-");
     for (j = 0; j < BOARD_WIDTH; j++)
