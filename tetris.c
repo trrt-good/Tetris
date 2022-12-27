@@ -8,15 +8,15 @@
 #define BOARD_WIDTH 10
 #define BOARD_HEIGHT 20
 
-#define ANSI_COLOR_GRAY     "\x1b[30m"
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_LIGHT_PURPLE    "\x1b[36;1m"
+#define ANSI_COLOR_GRAY "\x1b[30m"
+#define ANSI_COLOR_RED "\x1b[31m"
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_BLUE "\x1b[34m"
+#define ANSI_COLOR_LIGHT_PURPLE "\x1b[36;1m"
 #define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36;1m"
-#define ANSI_COLOR_WHITE   "\x1b[37;1m"
+#define ANSI_COLOR_CYAN "\x1b[36;1m"
+#define ANSI_COLOR_WHITE "\x1b[37;1m"
 
 typedef enum
 {
@@ -57,6 +57,8 @@ typedef struct
     int over;
 } TetrisGame;
 
+int useColor = 1;
+
 void tetris_init(TetrisGame *game);
 Piece tetris_generate_piece();
 int tetris_can_place_piece(TetrisGame *game, Piece piece, int x, int y);
@@ -66,18 +68,26 @@ int tetris_get_piece_square(Piece piece, int i, int j);
 int tetris_can_rotate_piece(TetrisGame *game, Piece piece);
 void tetris_add_piece_to_board(TetrisGame *game, Piece piece);
 void tetris_update(TetrisGame *game, Input input);
-void tetris_print(TetrisGame *game);
+void tetris_print_color(TetrisGame *game);
 void gameOver(TetrisGame *game);
 Input processInput(char c);
 char getInput();
+void tetris_welcome();
+void tetris_print();
 
 int main()
 {
     srand(time(NULL));
     TetrisGame *mainGame = malloc(sizeof(TetrisGame));
     tetris_init(mainGame);
-    tetris_print(mainGame);
-    
+
+    tetris_welcome();
+
+    if (useColor)
+        tetris_print_color(mainGame);
+    else
+        tetris_print(mainGame);
+
     while (1)
     {
         Input input = processInput(getInput());
@@ -85,37 +95,48 @@ int main()
         gameOver(mainGame);
         tetris_update(mainGame, input);
         gameOver(mainGame);
-        tetris_print(mainGame);
+
+        if (useColor)
+            tetris_print_color(mainGame);
+        else
+            tetris_print(mainGame);
         printf("\ncurrent score: %d\n", mainGame->score);
     }
 
-    tetris_print(mainGame);
+    tetris_print_color(mainGame);
     return 1;
+}
+
+void tetris_welcome()
+{
+    printf("welcome to tetris!\n\n");
+    printf("play without color? (press y): ");
+    useColor = getch() != 'y';
 }
 
 Input processInput(char c)
 {
     switch (c)
     {
-        case 'w':
-            return ROTATE;
-            break;
-        case 'a':
-            return LEFT;
-            break;
-        case 'd':
-            return RIGHT;
-            break;
-        case ' ':
-            return DROP;
-            break;
-        case 's':
-            return DOWN;
-            break;
+    case 'w':
+        return ROTATE;
+        break;
+    case 'a':
+        return LEFT;
+        break;
+    case 'd':
+        return RIGHT;
+        break;
+    case ' ':
+        return DROP;
+        break;
+    case 's':
+        return DOWN;
+        break;
 
-        case 'x':
-            exit(1);
-            break;
+    case 'x':
+        exit(1);
+        break;
     }
 }
 
@@ -154,7 +175,7 @@ Piece tetris_generate_piece()
     return piece;
 }
 
-void tetris_print(TetrisGame *game)
+void tetris_print_color(TetrisGame *game)
 {
     int i, j;
     printf(ANSI_COLOR_WHITE "\n\n+-");
@@ -165,45 +186,73 @@ void tetris_print(TetrisGame *game)
     printf("+\n");
     for (i = 0; i < BOARD_HEIGHT; i++)
     {
-        printf(ANSI_COLOR_WHITE  "| ");
+        printf(ANSI_COLOR_WHITE "| ");
         for (j = 0; j < BOARD_WIDTH; j++)
         {
-            if (tetris_get_piece_square(game->current_piece, j-game->current_piece.x, i-game->current_piece.y) == 1)
+            if (tetris_get_piece_square(game->current_piece, j - game->current_piece.x, i - game->current_piece.y) == 1)
                 printf(ANSI_COLOR_GRAY "$ ");
             else
             {
                 switch (game->board[j][i])
                 {
-                    case 0:
-                        printf("  "); 
-                        break;
-                    case 1:
-                        printf(ANSI_COLOR_RED "1 "); 
-                        break;
-                    case 2:
-                        printf(ANSI_COLOR_BLUE "2 "); 
-                        break;
-                    case 3:
-                        printf(ANSI_COLOR_YELLOW "3 "); 
-                        break;
-                    case 4:
-                        printf(ANSI_COLOR_GREEN "4 "); 
-                        break;
-                    case 5:
-                        printf(ANSI_COLOR_MAGENTA "5 "); 
-                        break;
-                    case 6:
-                        printf(ANSI_COLOR_CYAN "6 "); 
-                        break;
-                    case 7:
-                        printf(ANSI_COLOR_LIGHT_PURPLE "7 "); 
-                        break;
+                case 0:
+                    printf("  ");
+                    break;
+                case 1:
+                    printf(ANSI_COLOR_RED "1 ");
+                    break;
+                case 2:
+                    printf(ANSI_COLOR_BLUE "2 ");
+                    break;
+                case 3:
+                    printf(ANSI_COLOR_YELLOW "3 ");
+                    break;
+                case 4:
+                    printf(ANSI_COLOR_GREEN "4 ");
+                    break;
+                case 5:
+                    printf(ANSI_COLOR_MAGENTA "5 ");
+                    break;
+                case 6:
+                    printf(ANSI_COLOR_CYAN "6 ");
+                    break;
+                case 7:
+                    printf(ANSI_COLOR_LIGHT_PURPLE "7 ");
+                    break;
                 }
-                //printf(ANSI_COLOR_RED "%c ", (game->board[j][i] == 0)? ' ' : game->board[j][i]+48);
+                // printf(ANSI_COLOR_RED "%c ", (game->board[j][i] == 0)? ' ' : game->board[j][i]+48);
             }
-                
         }
         printf(ANSI_COLOR_WHITE "|\n");
+    }
+    printf("+-");
+    for (j = 0; j < BOARD_WIDTH; j++)
+    {
+        printf("--");
+    }
+    printf("+\n");
+}
+
+void tetris_print(TetrisGame *game)
+{
+    int i, j;
+    printf("\n\n+-");
+    for (j = 0; j < BOARD_WIDTH; j++)
+    {
+        printf("--");
+    }
+    printf("+\n");
+    for (i = 0; i < BOARD_HEIGHT; i++)
+    {
+        printf("| ");
+        for (j = 0; j < BOARD_WIDTH; j++)
+        {
+            if (tetris_get_piece_square(game->current_piece, j - game->current_piece.x, i - game->current_piece.y) == 1)
+                printf("$ ");
+            else
+                printf("%c ", (game->board[j][i] == 0) ? ' ' : game->board[j][i] + 48);
+        }
+        printf("|\n");
     }
     printf("+-");
     for (j = 0; j < BOARD_WIDTH; j++)
@@ -270,38 +319,58 @@ int tetris_get_piece_square(Piece piece, int i, int j)
         switch (piece.rotation)
         {
         case 0:
-            if (i == 1 && j == 0) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
-            if (i == 1 && j == 3) return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
+            if (i == 1 && j == 3)
+                return 1;
             break;
         case 1:
-            if (i == 0 && j == 2) return 1;
-            if (i == 1 && j == 2) return 1;
-            if (i == 2 && j == 2) return 1;
-            if (i == 3 && j == 2) return 1;
+            if (i == 0 && j == 2)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
+            if (i == 2 && j == 2)
+                return 1;
+            if (i == 3 && j == 2)
+                return 1;
             break;
         case 2:
-            if (i == 2 && j == 0) return 1;
-            if (i == 2 && j == 1) return 1;
-            if (i == 2 && j == 2) return 1;
-            if (i == 2 && j == 3) return 1;
+            if (i == 2 && j == 0)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
+            if (i == 2 && j == 2)
+                return 1;
+            if (i == 2 && j == 3)
+                return 1;
             break;
         case 3:
-            if (i == 0 && j == 1) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 2 && j == 1) return 1;
-            if (i == 3 && j == 1) return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
+            if (i == 3 && j == 1)
+                return 1;
             break;
         }
         break;
 
     // Piece O
     case O:
-        if (i == 0 && j == 0) return 1;
-        if (i == 0 && j == 1) return 1;
-        if (i == 1 && j == 0) return 1;
-        if (i == 1 && j == 1) return 1;
+        if (i == 0 && j == 0)
+            return 1;
+        if (i == 0 && j == 1)
+            return 1;
+        if (i == 1 && j == 0)
+            return 1;
+        if (i == 1 && j == 1)
+            return 1;
         break;
 
     // Piece T
@@ -309,28 +378,44 @@ int tetris_get_piece_square(Piece piece, int i, int j)
         switch (piece.rotation)
         {
         case 0:
-            if (i == 0 && j == 1) return 1;
-            if (i == 1 && j == 0) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
             break;
         case 1:
-            if (i == 1 && j == 0) return 1;
-            if (i == 0 && j == 1) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 2 && j == 1) return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
             break;
         case 2:
-            if (i == 2 && j == 1) return 1;
-            if (i == 1 && j == 0) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
+            if (i == 2 && j == 1)
+                return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
             break;
         case 3:
-            if (i == 0 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 2 && j == 1) return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
             break;
         }
         break;
@@ -340,58 +425,90 @@ int tetris_get_piece_square(Piece piece, int i, int j)
         switch (piece.rotation)
         {
         case 0:
-            if (i == 0 && j == 0) return 1;
-            if (i == 0 && j == 1) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
+            if (i == 0 && j == 0)
+                return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
             break;
         case 1:
-            if (i == 0 && j == 2) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
-            if (i == 2 && j == 1) return 1;
+            if (i == 0 && j == 2)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
             break;
         case 2:
-            if (i == 1 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
-            if (i == 0 && j == 0) return 1;
-            if (i == 0 && j == 1) return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
+            if (i == 0 && j == 0)
+                return 1;
+            if (i == 0 && j == 1)
+                return 1;
             break;
         case 3:
-            if (i == 1 && j == 2) return 1;
-            if (i == 0 && j == 2) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 2 && j == 1) return 1;
+            if (i == 1 && j == 2)
+                return 1;
+            if (i == 0 && j == 2)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
             break;
         }
         break;
-        
+
     case Z:
         switch (piece.rotation)
         {
         case 0:
-            if (i == 1 && j == 0) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 0 && j == 1) return 1;
-            if (i == 0 && j == 2) return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 0 && j == 2)
+                return 1;
             break;
         case 1:
-            if (i == 0 && j == 1) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
-            if (i == 2 && j == 2) return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
+            if (i == 2 && j == 2)
+                return 1;
             break;
         case 2:
-            if (i == 0 && j == 1) return 1;
-            if (i == 0 && j == 2) return 1;
-            if (i == 1 && j == 0) return 1;
-            if (i == 1 && j == 1) return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 0 && j == 2)
+                return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
             break;
         case 3:
-            if (i == 0 && j == 0) return 1;
-            if (i == 1 && j == 0) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 2 && j == 1) return 1;
+            if (i == 0 && j == 0)
+                return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
             break;
         }
         break;
@@ -400,28 +517,44 @@ int tetris_get_piece_square(Piece piece, int i, int j)
         switch (piece.rotation)
         {
         case 0:
-            if (i == 0 && j == 0) return 1;
-            if (i == 0 && j == 1) return 1;
-            if (i == 0 && j == 2) return 1;
-            if (i == 1 && j == 2) return 1;
+            if (i == 0 && j == 0)
+                return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 0 && j == 2)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
             break;
         case 1:
-            if (i == 0 && j == 0) return 1;
-            if (i == 1 && j == 0) return 1;
-            if (i == 2 && j == 0) return 1;
-            if (i == 0 && j == 1) return 1;
+            if (i == 0 && j == 0)
+                return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 2 && j == 0)
+                return 1;
+            if (i == 0 && j == 1)
+                return 1;
             break;
         case 2:
-            if (i == 0 && j == 0) return 1;
-            if (i == 1 && j == 0) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
+            if (i == 0 && j == 0)
+                return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
             break;
         case 3:
-            if (i == 2 && j == 0) return 1;
-            if (i == 0 && j == 1) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 2 && j == 1) return 1;
+            if (i == 2 && j == 0)
+                return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
             break;
         }
         break;
@@ -431,28 +564,44 @@ int tetris_get_piece_square(Piece piece, int i, int j)
         switch (piece.rotation)
         {
         case 0:
-            if (i == 1 && j == 0) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 1 && j == 2) return 1;
-            if (i == 0 && j == 2) return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 1 && j == 2)
+                return 1;
+            if (i == 0 && j == 2)
+                return 1;
             break;
         case 1:
-            if (i == 0 && j == 1) return 1;
-            if (i == 1 && j == 1) return 1;
-            if (i == 2 && j == 1) return 1;
-            if (i == 0 && j == 0) return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 1 && j == 1)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
+            if (i == 0 && j == 0)
+                return 1;
             break;
         case 2:
-            if (i == 0 && j == 0) return 1;
-            if (i == 0 && j == 1) return 1;
-            if (i == 0 && j == 2) return 1;
-            if (i == 1 && j == 0) return 1;
+            if (i == 0 && j == 0)
+                return 1;
+            if (i == 0 && j == 1)
+                return 1;
+            if (i == 0 && j == 2)
+                return 1;
+            if (i == 1 && j == 0)
+                return 1;
             break;
         case 3:
-            if (i == 0 && j == 0) return 1;
-            if (i == 1 && j == 0) return 1;
-            if (i == 2 && j == 0) return 1;
-            if (i == 2 && j == 1) return 1;
+            if (i == 0 && j == 0)
+                return 1;
+            if (i == 1 && j == 0)
+                return 1;
+            if (i == 2 && j == 0)
+                return 1;
+            if (i == 2 && j == 1)
+                return 1;
             break;
         }
         break;
@@ -504,8 +653,8 @@ void tetris_update(TetrisGame *game, Input input)
         break;
     }
 
-    //printf("%d, %d\n", game->current_piece.x, game->current_piece.y);
-    // If the piece can no longer move down, add it to the board and generate a new piece
+    // printf("%d, %d\n", game->current_piece.x, game->current_piece.y);
+    //  If the piece can no longer move down, add it to the board and generate a new piece
     if (!tetris_can_move_piece(game, game->current_piece, 0, 1))
     {
         tetris_add_piece_to_board(game, game->current_piece);
@@ -513,7 +662,7 @@ void tetris_update(TetrisGame *game, Input input)
         game->current_piece = tetris_generate_piece();
 
         // If the new piece cannot be placed on the board, the game is over
-        for (int i = 0; i < BOARD_WIDTH; i ++)
+        for (int i = 0; i < BOARD_WIDTH; i++)
         {
             if (game->board[i][0] == 1)
             {
@@ -534,7 +683,7 @@ void tetris_add_piece_to_board(TetrisGame *game, Piece piece)
             if (tetris_get_piece_square(piece, i, j) == 1)
             {
                 // Set the board square to the piece's type
-                game->board[piece.x + i][piece.y + j] = piece.type+1;
+                game->board[piece.x + i][piece.y + j] = piece.type + 1;
             }
         }
     }
@@ -602,5 +751,4 @@ void tetris_remove_completed_lines(TetrisGame *game)
     {
         game->score += 1200;
     }
-
 }
