@@ -150,7 +150,7 @@ void gameOver(TetrisGame *game)
 {
     if (game->over)
     {
-        printf("GAME OVER! \nFINAL SCORE: %d\n", game->score);
+        printf("\n\nGAME OVER! \nFINAL SCORE: %d\n", game->score);
         printf("\npress any key to exit");
         getch();
         exit(1);
